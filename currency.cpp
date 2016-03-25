@@ -37,7 +37,7 @@ struct SellQuote: public Quote
 template <class T>
 class HashHeap
 {
-  private:
+private:
     unordered_map<string, int> hsBank;
 	vector<T> m_array;
 
@@ -58,23 +58,23 @@ class HashHeap
         }
     }
     
-	void push(T quote) {
-	    m_array.push_back(quote);
+    void push(T quote) {
+        m_array.push_back(quote);
         int pos = m_array.size()-1;
         hsBank[quote.bank] = pos;
-	    heapify_up(pos);
-	}
+        heapify_up(pos);
+    }
     
-	void heapify_up(int i) {
-		if(i == 0) return;
-		int p = (i-1) / 2;
-		if(T::best_compare(m_array[i], m_array[p])) {
-			swap(m_array[i], m_array[p]);
+    void heapify_up(int i) {
+        if(i == 0) return;
+        int p = (i-1) / 2;
+        if(T::best_compare(m_array[i], m_array[p])) {
+            swap(m_array[i], m_array[p]);
             hsBank[m_array[i].bank] = i;
             hsBank[m_array[p].bank] = p;
-			heapify_up(p);
-		}
-	}
+            heapify_up(p);
+        }
+    }
     
     void heapify_down(int i)
     {
@@ -92,9 +92,9 @@ class HashHeap
         }
     }
     
-  public:
-	HashHeap() {}
-	T top() {return m_array[0];}
+public:
+    HashHeap() {}
+    T top() {return m_array[0];}
     void insert(T quote)
     {
         if(hsBank.find(quote.bank) != hsBank.end())
@@ -149,8 +149,6 @@ public:
         cout << "Best " << pair << " Sell = "<< bestSellQuote.value << " from " << bestSellQuote.bank << endl;  
     }
 };
-
-
 
 
 int main () {
