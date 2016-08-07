@@ -2,6 +2,7 @@
 #include <vector>
 #include <unordered_map>
 #include <queue>
+#include <set>
 using namespace std;
 
 /*
@@ -40,13 +41,13 @@ struct Shipment {
     
     friend bool operator<(const Shipment &rhs, const Shipment &lhs) {
         if(rhs.priority == lhs.priority)
-            return rhs.hold_date < lhs.hold_date;
+            return rhs.shipment_id < lhs.shipment_id;
         return rhs.priority < lhs.priority;
     }
 
     friend bool operator>(const Shipment &rhs, const Shipment &lhs) {
         if(rhs.priority == lhs.priority)
-            return rhs.hold_date > lhs.hold_date;
+            return rhs.shipment_id > lhs.shipment_id;
         return rhs.priority > lhs.priority;
     }
 
@@ -72,21 +73,41 @@ HASH_HEAP Find5Best(const vector<Shipment> &ships)
             hh[sh.warehouse_id] = que;
         } else {
             PQ &que = it->second;
-            if (que.size() < 5) {
-                que.push(sh);
-            }
-            else if(sh < que.top()) {
-                que.pop();
-                que.push(sh);
-            }
+	    que.push(sh);
+            if (que.size() > 5) que.pop();
         }
     }
     return hh;
 }
 
+typedef set<Shipment> SET;
+typedef unordered_map<string, SET> HASH_SET;
+
+HASH_SET Find5BestS(vector<Shipment> ships) {
+    HASH_SET res;
+    for(auto sh : ships) {
+	HASH_SET::iterator it = res.find(sh.warehouse_id);
+	if (it == res.end()) {
+	    SET ss;
+	    ss.insert(sh);
+	    res[sh.warehouse_id] = ss;
+	} else {
+	    SET &ss = it->second;
+	    ss.insert(sh);
+	    if(ss.size() > 5) {
+		auto its = ss.end();
+		--its;
+		ss.erase(its);
+	    }
+	}
+    }
+    return res;
+}
+
+
 int main(int argc, char ** argv)
 {
-    srand(time(NULL));
+    //srand(time(NULL));
     vector<Shipment> ships;
     for(int i = 0; i < 20; ++i) {
         int priA = rand() % 10;
@@ -96,13 +117,21 @@ int main(int argc, char ** argv)
     }
 
     HASH_HEAP res = Find5Best(ships);
-
     for (auto it = res.begin(); it != res.end(); ++it) {
         PQ &que = it->second;
         cout << "On Warehouse " << it->first << ", the 5 best are "<< endl;
         for (int i = 0; i < 5; i++) {
             que.top().print();
             que.pop();
+        }
+    }
+
+    HASH_SET ress = Find5BestS(ships);
+    for (auto it = ress.begin(); it != ress.end(); ++it) {
+        SET &ss = it->second;
+        cout << "On Warehouse " << it->first << ", the 5 best are "<< endl;
+	for(auto it = ss.begin(); it != ss.end(); ++it) {
+            it->print();
         }
     }
     return 0;
